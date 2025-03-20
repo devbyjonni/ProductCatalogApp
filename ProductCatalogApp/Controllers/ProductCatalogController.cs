@@ -7,9 +7,10 @@ namespace ProductCatalogApp.Controllers
 {
     public class ProductCatalogController
     {
-        // Made public to allow unit tests to insert and verify product data.
+        // Public list to store products, allowing access for unit testing
         public readonly List<Product> products = new List<Product>();
 
+        // Command constants for user interaction
         public static class Commands
         {
             public const string AddProduct = "P";
@@ -27,10 +28,12 @@ namespace ProductCatalogApp.Controllers
                 Console.ResetColor();
 
                 string category = GetUserInput("Enter a Category: ", Console.In) ?? string.Empty;
+
+                // Exit immediately if user enters 'Q'
                 if (category.Equals(Commands.Quit, StringComparison.OrdinalIgnoreCase))
                 {
                     DisplayProducts();
-                    break;
+                    return;
                 }
 
                 string name = GetUserInput("Enter a Product Name: ", Console.In);
@@ -42,17 +45,20 @@ namespace ProductCatalogApp.Controllers
 
                 decimal price = GetPriceInput("Enter a Price: ", Console.In);
 
+                // Add valid product entry to the list
                 products.Add(new Product { Category = category, Name = name, Price = price });
                 PrintSuccess("The product was successfully added!");
             }
         }
 
+        // Reads and returns trimmed user input
         public string GetUserInput(string prompt, TextReader inputReader)
         {
             Console.Write(prompt);
             return inputReader.ReadLine()?.Trim() ?? "";
         }
 
+        // Ensures valid price input with a max number of attempts
         public decimal GetPriceInput(string prompt, TextReader inputReader)
         {
             int attempts = 0;
@@ -63,12 +69,8 @@ namespace ProductCatalogApp.Controllers
                 Console.Write(prompt);
                 string input = inputReader.ReadLine() ?? string.Empty;
 
-                // Debugging line to verify input received during testing
-                Console.WriteLine($"DEBUG: Read input '{input}'");
-
                 if (decimal.TryParse(input, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal price) && price > 0)
                 {
-                    Console.WriteLine($"DEBUG: Parsed valid price '{price}'");
                     return price;
                 }
 
@@ -86,13 +88,13 @@ namespace ProductCatalogApp.Controllers
             Console.WriteLine("Category\tProduct\tPrice");
             Console.ResetColor();
 
-            // LINQ: Sorting the products list by price in ascending order
+            // Sort products by price in ascending order
             var sortedProducts = products.OrderBy(p => p.Price).ToList();
 
-            // LINQ: Using .ForEach() to iterate and print each product
+            // Display sorted product list
             sortedProducts.ForEach(p => Console.WriteLine($"{p.Category}\t{p.Name}\t{p.Price}"));
 
-            // LINQ: Calculating the total price of all products
+            // Calculate and display total price
             decimal total = sortedProducts.Sum(p => p.Price);
             Console.WriteLine($"\nTotal amount: {total}");
 
@@ -102,23 +104,26 @@ namespace ProductCatalogApp.Controllers
 
         public void HandleUserChoice()
         {
-            string choice = (Console.ReadLine() ?? "").Trim().ToUpper();
-
-            switch (choice)
+            while (true)
             {
-                case Commands.AddProduct:
-                    Run();
-                    break;
-                case Commands.SearchProduct:
-                    SearchProduct();
-                    break;
-                case Commands.Quit:
-                    Environment.Exit(0);
-                    break;
-                default:
-                    PrintError("Invalid choice. Please try again.");
-                    HandleUserChoice();
-                    break;
+                string choice = (Console.ReadLine() ?? "").Trim().ToUpper();
+
+                switch (choice)
+                {
+                    case Commands.AddProduct:
+                        Run();
+                        return;
+                    case Commands.SearchProduct:
+                        SearchProduct();
+                        return;
+                    case Commands.Quit:
+                        Environment.Exit(0);
+                        return;
+                    default:
+                        PrintError("Invalid choice. Please try again.");
+                        Console.Write("\nEnter a valid command: ");
+                        break;
+                }
             }
         }
 
@@ -127,7 +132,13 @@ namespace ProductCatalogApp.Controllers
             Console.Write("Enter a Product Name: ");
             string searchName = Console.ReadLine()?.Trim() ?? "";
 
-            // LINQ: Filtering products based on user input
+            // Exit search if user enters 'Q'
+            if (searchName.Equals(Commands.Quit, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            // Find products matching the search name
             var foundProducts = products.Where(p => p.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
 
             Console.Clear();
@@ -135,12 +146,22 @@ namespace ProductCatalogApp.Controllers
             Console.WriteLine("Category\tProduct\tPrice");
             Console.ResetColor();
 
-            foreach (var product in products)
+            if (!foundProducts.Any())
             {
-                if (foundProducts.Contains(product))
-                    Console.ForegroundColor = ConsoleColor.Magenta;
-                Console.WriteLine($"{product.Category}\t{product.Name}\t{product.Price}");
+                // Display message if no products were found
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("\nNo products found matching your search.");
                 Console.ResetColor();
+            }
+            else
+            {
+                // Display matching products with distinct color
+                foreach (var product in foundProducts)
+                {
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.WriteLine($"{product.Category}\t{product.Name}\t{product.Price}");
+                    Console.ResetColor();
+                }
             }
 
             Console.WriteLine($"\nTo enter a new product - enter: \"{Commands.AddProduct}\" | To search for a product - enter: \"{Commands.SearchProduct}\" | To quit - enter: \"{Commands.Quit}\"");

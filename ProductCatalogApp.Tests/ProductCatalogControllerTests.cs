@@ -86,5 +86,6 @@ namespace ProductCatalogApp.Tests
             Assert.Single(foundProducts);
             Assert.Equal("Phone", foundProducts[0].Name);
         }
+
     }
 }
