@@ -1,38 +1,33 @@
-# Product Catalog
+# ProductCatalogApp
 
 ## Overview
-Product Catalog is a **C# console application** that allows users to add, search, and display products in a structured format.
+ProductCatalogApp is a **C# console application** that allows users to manage a product catalog by entering product details, viewing sorted product lists, and searching for products.
 
 ## Features
-- **Add products** by specifying:
-  - **Category** (e.g., Electronics, Clothing, etc.).
-  - **Product Name** (free text input).
-  - **Price** (valid positive decimal values).
-- **Sorting & Display:**
-  - Products are **sorted by price (ascending)** before being displayed.
-  - A **total sum** of all product prices is displayed.
-- **Search Functionality:**
-  - Users can search for a product by name.
-  - Matching results are **highlighted** for better visibility.
-- **Command-based navigation:**
-  - `P` - Add a new product.
-  - `S` - Search for a product.
-  - `Q` - Quit the application.
-- **Error Handling:**
-  - Invalid input for price prompts a retry (up to 5 attempts).
-  - Ensures product names are not empty.
+- Add products with the following details:
+  - **Category** (e.g., Electronics, Clothing, etc.)
+  - **Product Name** (custom user input)
+  - **Price** (must be a positive decimal value)
+- **Sorted output**: Displays products sorted by price in ascending order.
+- **Search functionality**: Find products by name.
+- **Error handling**: Ensures valid input and prevents invalid entries.
+- **Unit testing**: Validates core functionalities.
 
 ## How to Use
 1. Run the application.
-2. Follow the prompts to enter product details.
-3. Type `Q` to quit and view all products.
-4. Type `S` to search for a specific product.
-5. Products are displayed in sorted order by price.
+2. Enter a category, product name, and price.
+3. View the sorted product list with total price calculation.
+4. Search for a specific product by name.
+5. Use commands:
+   - Enter `P` to add another product.
+   - Enter `S` to search for a product.
+   - Enter `Q` to quit the application.
 
 ## Future Improvements
-- Enhance unit test coverage for validation and search functionality.
-- Implement persistent storage (e.g., saving products to a file or database).
-- Introduce a graphical user interface (GUI).
+- Enhance search functionality (e.g., support for partial matching).
+- Implement persistent data storage (e.g., save products to a file or database).
+- Add advanced filtering and sorting options.
+- Improve user experience with better input validation and UI enhancements.
 
 ## Author
 Developed by **Jonni Akesson** as part of the **Lexicon C# Course**.
