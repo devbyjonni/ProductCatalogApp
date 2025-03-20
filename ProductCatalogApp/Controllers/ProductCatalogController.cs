@@ -1,14 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace ProductCatalogApp.Controllers
 {
     public class ProductCatalogController
     {
-        private readonly List<Product> products = new List<Product>();
+        // Made public to allow unit tests to insert and verify product data.
+        public readonly List<Product> products = new List<Product>();
 
-        private static class Commands
+        public static class Commands
         {
             public const string AddProduct = "P";
             public const string SearchProduct = "S";
@@ -24,56 +26,73 @@ namespace ProductCatalogApp.Controllers
                 Console.WriteLine("To enter a new product - follow the steps | To quit - enter: \"Q\"");
                 Console.ResetColor();
 
-                string category = GetUserInput("Enter a Category: ");
+                string category = GetUserInput("Enter a Category: ", Console.In) ?? string.Empty;
                 if (category.Equals(Commands.Quit, StringComparison.OrdinalIgnoreCase))
                 {
                     DisplayProducts();
                     break;
                 }
 
-                string name = GetUserInput("Enter a Product Name: ");
+                string name = GetUserInput("Enter a Product Name: ", Console.In);
                 if (string.IsNullOrWhiteSpace(name))
                 {
                     PrintError("Product name cannot be empty.");
                     continue;
                 }
 
-                decimal price = GetPriceInput("Enter a Price: ");
+                decimal price = GetPriceInput("Enter a Price: ", Console.In);
 
                 products.Add(new Product { Category = category, Name = name, Price = price });
                 PrintSuccess("The product was successfully added!");
             }
         }
 
-        private string GetUserInput(string prompt)
+        public string GetUserInput(string prompt, TextReader inputReader)
         {
             Console.Write(prompt);
-            return Console.ReadLine()?.Trim() ?? "";
+            return inputReader.ReadLine()?.Trim() ?? "";
         }
 
-        private decimal GetPriceInput(string prompt)
+        public decimal GetPriceInput(string prompt, TextReader inputReader)
         {
-            while (true)
+            int attempts = 0;
+            int maxAttempts = 5;
+
+            while (attempts < maxAttempts)
             {
                 Console.Write(prompt);
-                if (decimal.TryParse(Console.ReadLine(), out decimal price) && price > 0)
+                string input = inputReader.ReadLine() ?? string.Empty;
+
+                // Debugging line to verify input received during testing
+                Console.WriteLine($"DEBUG: Read input '{input}'");
+
+                if (decimal.TryParse(input, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal price) && price > 0)
                 {
+                    Console.WriteLine($"DEBUG: Parsed valid price '{price}'");
                     return price;
                 }
+
                 PrintError("Invalid price. Please enter a positive number.");
+                attempts++;
             }
+
+            throw new InvalidOperationException("Maximum retry attempts exceeded.");
         }
 
-        private void DisplayProducts()
+        public void DisplayProducts()
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Category\tProduct\tPrice");
             Console.ResetColor();
 
+            // LINQ: Sorting the products list by price in ascending order
             var sortedProducts = products.OrderBy(p => p.Price).ToList();
+
+            // LINQ: Using .ForEach() to iterate and print each product
             sortedProducts.ForEach(p => Console.WriteLine($"{p.Category}\t{p.Name}\t{p.Price}"));
 
+            // LINQ: Calculating the total price of all products
             decimal total = sortedProducts.Sum(p => p.Price);
             Console.WriteLine($"\nTotal amount: {total}");
 
@@ -81,7 +100,7 @@ namespace ProductCatalogApp.Controllers
             HandleUserChoice();
         }
 
-        private void HandleUserChoice()
+        public void HandleUserChoice()
         {
             string choice = (Console.ReadLine() ?? "").Trim().ToUpper();
 
@@ -103,11 +122,12 @@ namespace ProductCatalogApp.Controllers
             }
         }
 
-        private void SearchProduct()
+        public void SearchProduct()
         {
             Console.Write("Enter a Product Name: ");
             string searchName = Console.ReadLine()?.Trim() ?? "";
 
+            // LINQ: Filtering products based on user input
             var foundProducts = products.Where(p => p.Name.Equals(searchName, StringComparison.OrdinalIgnoreCase)).ToList();
 
             Console.Clear();
