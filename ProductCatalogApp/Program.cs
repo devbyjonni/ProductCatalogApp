@@ -1,13 +1,15 @@
 using System;
 
+using ProductCatalogApp.Controllers;
+
 namespace ProductCatalogApp
 {
-    public class Program
+    class Program
     {
-        public static void Main()
+        static void Main(string[] args)
         {
-            Console.WriteLine("Dotnet Console App is Running! 🚀");
+            ProductCatalogController productController = new ProductCatalogController();
+            productController.Run();
         }
     }
 }
-
