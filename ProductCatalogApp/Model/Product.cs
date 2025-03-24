@@ -1,7 +1,7 @@
 using System;
 
 
-namespace ProductCatalogApp
+namespace ProductCatalogApp.Model
 {
     public class Product
     {
