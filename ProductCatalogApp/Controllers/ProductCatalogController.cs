@@ -7,13 +7,13 @@ using ProductCatalogApp.Model;
 
 namespace ProductCatalogApp.Controllers
 {
-    public class ProductCatalogController
+    internal class ProductCatalogController
     {
         // Public list of products (accessible for testing)
-        public readonly List<Product> products = new List<Product>();
+        internal readonly List<Product> products = new List<Product>();
 
         // Command constants used for menu navigation
-        public static class Commands
+        private static class Commands
         {
             public const string AddProduct = "P";
             public const string SearchProduct = "S";
@@ -21,7 +21,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Main program loop
-        public void Run()
+        internal void Run()
         {
             while (true)
             {
@@ -62,7 +62,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Prompts user for input and returns trimmed result or null if user quits
-        public string? GetUserInput(string prompt, TextReader inputReader)
+        internal string? GetUserInput(string prompt, TextReader inputReader)
         {
             while (true)
             {
@@ -85,7 +85,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Prompts the user for a valid price or returns null if they choose to quit
-        public decimal? ReadValidPrice(string prompt, TextReader inputReader)
+        internal decimal? ReadValidPrice(string prompt, TextReader inputReader)
         {
             while (true)
             {
@@ -110,7 +110,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Validates price input and ensures it’s a positive decimal
-        public bool IsValidPrice(string input, out decimal price)
+        internal bool IsValidPrice(string input, out decimal price)
         {
             return decimal.TryParse(
                 input,
@@ -121,7 +121,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Displays all products in the catalog, sorted by price
-        public void DisplayProducts()
+        private void DisplayProducts()
         {
             Console.Clear();
             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -140,7 +140,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Handles user input for the main menu
-        public void HandleUserChoice()
+        private void HandleUserChoice()
         {
             while (true)
             {
@@ -166,7 +166,7 @@ namespace ProductCatalogApp.Controllers
         }
 
         // Searches the product list by name
-        public void SearchProduct()
+        private void SearchProduct()
         {
             Console.Write("Enter a Product Name: ");
             string searchName = Console.ReadLine()?.Trim() ?? "";
