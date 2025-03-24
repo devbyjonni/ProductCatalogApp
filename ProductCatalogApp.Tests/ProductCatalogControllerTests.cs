@@ -2,8 +2,6 @@ using System;
 using Xunit;
 using ProductCatalogApp.Controllers;
 using System.IO;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ProductCatalogApp.Tests
 {
@@ -12,80 +10,59 @@ namespace ProductCatalogApp.Tests
         [Fact]
         public void GetUserInput_ShouldReturnTrimmedString()
         {
-            // Arrange
             var controller = new ProductCatalogController();
             var input = new StringReader("  Electronics  \n");
 
-            // Act
-            string result = controller.GetUserInput("Enter a Category: ", input);
+            string? result = controller.GetUserInput("Enter a Category: ", input);
 
-            // Assert
             Assert.Equal("Electronics", result);
         }
 
         [Fact]
-        public void GetPriceInput_ShouldReturnValidDecimal()
+        public void GetUserInput_ShouldReturnNull_WhenInputIsQ()
         {
-            // Arrange
             var controller = new ProductCatalogController();
-            var input = new StringReader("100.50\n"); // Ensure a valid decimal is entered
+            var input = new StringReader("Q\n");
 
-            // Act
-            decimal result = controller.GetPriceInput("Enter a Price: ", input); // Pass `input` directly
+            string? result = controller.GetUserInput("Enter a Category: ", input);
 
-
-            // Assert
-            Assert.Equal(100.50m, result);
+            Assert.Null(result);
         }
 
         [Fact]
-        public void GetPriceInput_ShouldThrowExceptionAfterMaxAttempts()
+        public void ReadValidPrice_ShouldReturnDecimal_WhenValidInputProvided()
         {
-            // Arrange
             var controller = new ProductCatalogController();
-            var input = new StringReader("abc\n-50\nxyz\n0\nwrong\n"); // Invalid 5 times
+            var input = new StringReader("199.99\n");
 
-            // Act & Assert
-            Assert.Throws<InvalidOperationException>(() => controller.GetPriceInput("Enter a Price: ", input));
+            decimal? result = controller.ReadValidPrice("Enter a Price: ", input);
+
+            Assert.Equal(199.99m, result);
         }
 
         [Fact]
-        public void DisplayProducts_ShouldSortProductsByPrice()
+        public void ReadValidPrice_ShouldReturnNull_WhenInputIsQ()
         {
-            // Arrange
             var controller = new ProductCatalogController();
-            controller.products.Add(new Product { Category = "Electronics", Name = "Laptop", Price = 1200 });
-            controller.products.Add(new Product { Category = "Electronics", Name = "Phone", Price = 900 });
-            controller.products.Add(new Product { Category = "Electronics", Name = "Mouse", Price = 50 });
+            var input = new StringReader("Q\n");
 
-            // Act
-            var sortedProducts = controller.products.OrderBy(p => p.Price).ToList();
+            decimal? result = controller.ReadValidPrice("Enter a Price: ", input);
 
-            // Assert
-            Assert.Equal("Mouse", sortedProducts[0].Name);
-            Assert.Equal("Phone", sortedProducts[1].Name);
-            Assert.Equal("Laptop", sortedProducts[2].Name);
+            Assert.Null(result);
         }
 
-        [Fact]
-        public void SearchProduct_ShouldFindProductByName()
+        [Theory]
+        [InlineData("100", true)]
+        [InlineData("0", false)]
+        [InlineData("-10", false)]
+        [InlineData("abc", false)]
+        public void IsValidPrice_ShouldReturnExpectedResult(string input, bool expected)
         {
-            // Arrange
             var controller = new ProductCatalogController();
-            controller.products.Add(new Product { Category = "Electronics", Name = "Laptop", Price = 1200 });
-            controller.products.Add(new Product { Category = "Electronics", Name = "Phone", Price = 900 });
-            controller.products.Add(new Product { Category = "Electronics", Name = "Mouse", Price = 50 });
 
-            var input = new StringReader("Phone\n");
-            Console.SetIn(input);
+            bool result = controller.IsValidPrice(input, out decimal price);
 
-            // Act
-            var foundProducts = controller.products.Where(p => p.Name.Equals("Phone", StringComparison.OrdinalIgnoreCase)).ToList();
-
-            // Assert
-            Assert.Single(foundProducts);
-            Assert.Equal("Phone", foundProducts[0].Name);
+            Assert.Equal(expected, result);
         }
-
     }
 }
